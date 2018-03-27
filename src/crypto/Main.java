@@ -22,6 +22,7 @@ public class Main {
         		
         		cryptoRoutines.add(new calculatorClass());
         		cryptoRoutines.add(new wepEncryptClass());
+        		cryptoRoutines.add(new CaesarChiffreClass());
         		
         		// -----------------------------------------------------------------
         		// -----------------------------------------------------------------
