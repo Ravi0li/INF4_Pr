@@ -1,19 +1,20 @@
 package crypto;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
-public class wepEncryptClass extends crypto.basicCrypt {
+public class wepDecryptClass extends crypto.basicCrypt {
 
 	// Im Konstruktor das Aussehen definieren
-	public wepEncryptClass()
+	public wepDecryptClass()
 	{
-		className = "WPE-Verschlüsselung";
-		input1Title = "Text: ";
+		className = "WEP-Entschlüsseln";
+		input1Title = "Verschlüsselte Nachricht: ";
 		input2Title = "Schlüssel: ";
 		input3Title = "";
-		output1Title = "Veschlüsselt: ";
+		output1Title = "Nachricht: ";
 		output2Title = "";
 	}
 	
@@ -22,68 +23,94 @@ public class wepEncryptClass extends crypto.basicCrypt {
 	public void calculate ()
 	{	
 		// Einlesen der Variablen
-		byte[] msg = input1Text.getBytes();
+		String[] msgString = input1Text.substring(1, input1Text.length() - 1).split(",");
+		byte[] msg = new byte[msgString.length];
+		try
+		{
+			for (int i=0, len=msg.length; i<len; i++)
+				msg[i] = Byte.parseByte(msgString[i].trim());   
+		}
+		catch (Exception exception)
+		{
+			outputLogText = "FEHLER: Eingangsstring ist fehlerhaft\r\n";
+			return;
+		}
 		byte[] key = input2Text.getBytes();
 		
 		// Länge der Nachricht berechnen
 		outputLogText = "Eingabe länge: " + msg.length + "\r\n";
 		outputLogText += "MSG:          " + getBin(msg) + "\r\n";
 		
-		// Key in Byte
-		int keyLength = key.length;
-		outputLogText += "Key Länge: " + keyLength + "\r\n";
-		outputLogText += "Key in bytes: " + getBin(key) + "\r\n";
-		if (keyLength < 5 || keyLength > 13)
+		// IV separieren
+		byte[] iv = Arrays.copyOfRange(msg,0,3);
+		outputLogText += "IV:           " + getBin(iv) + "\r\n";
+		
+		// Message separieren
+		if (msg.length <= 3)
 		{
-			outputLogText += "FEHLER: Key ist nicht zwischen 5 bis 13 Zeichen lang\r\n";
+			outputLogText += "FEHLER: zu kurzer Eingangsstring\r\n";
 			return;
 		}
-		
-		// Zufälliger Initialisierungsvektor
-		byte[] iv = new byte[3];
-		int inLength = iv.length;
-		new Random().nextBytes(iv);
-		outputLogText += "IV 24 Bit:    " + getBin(iv) + "\r\n";
+		msg = Arrays.copyOfRange(msg,3,msg.length);
+		outputLogText += "MSG:          " + getBin(msg) + "\r\n";
 		
 		// Initialisierungsvektor und Key zusammenhängen
-		byte[] ivKey = new byte[inLength + keyLength];
-		System.arraycopy(iv, 0, ivKey, 0, inLength);
-		System.arraycopy(key, 0, ivKey, inLength, keyLength);
+		byte[] ivKey = new byte[iv.length + key.length];
+		System.arraycopy(iv, 0, ivKey, 0, iv.length);
+		System.arraycopy(key, 0, ivKey, iv.length, key.length);
 		outputLogText += "IV+KEY:       " + getBin(ivKey) + "\r\n";
 		
 		// RC4 Zufallszahl erstellen
 		byte[] cryptKey = RC4(ivKey);
 		outputLogText += "RC4(In+Key):  " + getBin(cryptKey) + "\r\n";
 		
-		// CRC Summe berechnen
-		int crc = CRC32(msg);
-		outputLogText += "ICV=CRC(Msg): " + getBin(crc) + "\r\n";
-		
-		// Anhängen der Checksumme an die Nachricht
-		byte[] msgCrc = new byte[msg.length + 4];
-		System.arraycopy(msg, 0, msgCrc, 0, msg.length);
-		msgCrc[msg.length+3]   = (byte)  crc;
-		msgCrc[msg.length+2] = (byte) (crc >> 8);
-		msgCrc[msg.length+1] = (byte) (crc >> 0x10);
-		msgCrc[msg.length+0] = (byte) (crc >> 0x18);
-		outputLogText += "MSG+IVC:      " + getBin(msgCrc) + "\r\n";
-		
-		// IV vorne anhängen
-		byte output[] = new byte[3 + msgCrc.length];
-		output[0] = iv[0];
-		output[1] = iv[1];
-		output[2] = iv[2];
-		
-		// Kombinieren des Schlüssels und Message mit XOR
+		// XOR
+		byte output[] = new byte[msg.length];
 		int j = 0;
-		for (int c=0; c < msgCrc.length; c++)
+		for (int c=0; c < msg.length; c++)
 		{
-			output[c+3] = (byte)(0xff & ((int)msgCrc[c] ^ (int)cryptKey[j]));
+			output[c] = (byte)(0xff & ((int)msg[c] ^ (int)cryptKey[j]));
 			j++;
 			if (j == cryptKey.length) j = 0;
 		}
-		outputLogText += "OUTPUT:       " + getBin(output) + "\r\n";
+		outputLogText += "XOR:          " + getBin(output) + "\r\n";
 		output1Text = Arrays.toString(output);
+		
+		// Nachricht anzeigen
+		if (output.length-4 <= 0)
+		{
+			outputLogText += "FEHLER: Paketlänge fehlerhaft\r\n";
+			return;
+		}
+		byte[] msgKlar = new byte[output.length-4];
+		try
+		{
+			msgKlar = Arrays.copyOfRange(output,0,output.length-4);
+		}
+		catch (Exception exception)
+		{
+			outputLogText += "FEHLER: Paketlänge fehlerhaft\r\n";
+			return;
+		}
+		outputLogText += "OUT:          " + getBin(msgKlar) + "\r\n";
+		output1Text = new String(msgKlar, StandardCharsets.UTF_8);
+		
+		// CRC Summe berechnen
+		int crcint = CRC32(msgKlar);
+		outputLogText += "CRC(Msg):     " + getBin(crcint) + "\r\n";
+		byte[] crc = new byte[4];
+		crc[3]   = (byte)  crcint;
+		crc[2] = (byte) (crcint >> 8);
+		crc[1] = (byte) (crcint >> 0x10);
+		crc[0] = (byte) (crcint >> 0x18);
+		
+		// CRC vergleichen
+		byte[] crcMsg = Arrays.copyOfRange(output,output.length-4,output.length);
+		outputLogText += "CRC:          " + getBin(crcMsg) + "\r\n";
+		if (Arrays.equals(crc, crcMsg))
+			outputLogText += "CRC-CHECK:    OK\r\n";
+		else
+			outputLogText += "CRC-CHECK:    FEHLER\r\n";
 	}
 	
 	// Zeigt ein Int in Binär zahlen

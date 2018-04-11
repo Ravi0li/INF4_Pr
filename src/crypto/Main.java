@@ -22,6 +22,7 @@ public class Main {
         		
         		cryptoRoutines.add(new calculatorClass());
         		cryptoRoutines.add(new wepEncryptClass());
+        		cryptoRoutines.add(new wepDecryptClass());
         		
         		// -----------------------------------------------------------------
         		// -----------------------------------------------------------------
@@ -74,6 +75,7 @@ public class Main {
                 output2.setMaximumSize(new Dimension(20000,30));
                 JLabel labelOutLog = new JLabel("Log:");
                 JTextArea outputLog = new JTextArea(5,30);
+                outputLog.setFont(new Font("Courier New", Font.PLAIN, 12));
                 JScrollPane scrollLogPane = new JScrollPane(outputLog);
                 
                 // GroupBox für Auswahl
