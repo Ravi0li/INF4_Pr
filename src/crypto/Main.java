@@ -24,7 +24,9 @@ public class Main {
         		cryptoRoutines.add(new wepEncryptClass());
 				cryptoRoutines.add(new wepDecryptClass());
 				cryptoRoutines.add(new CaesarDecryptClass());
-				cryptoRoutines.add(new CaesarEncryptClass()); 
+				cryptoRoutines.add(new CaesarEncryptClass());
+				cryptoRoutines.add(new vigenereEncryptClass());
+				cryptoRoutines.add(new vigenereDecryptClass());
         		// -----------------------------------------------------------------
         		// -----------------------------------------------------------------
         	}

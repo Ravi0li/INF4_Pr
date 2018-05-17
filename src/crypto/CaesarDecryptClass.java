@@ -44,7 +44,7 @@ public class CaesarDecryptClass extends crypto.basicCrypt {
 		String alphabet = "a b c d e f g h i j k l m n o p q r s t u v w x y z";
 		String userString = input2Text.toLowerCase().replaceAll("[^\\dA-Za-z ]", "");
 		
-		outputLogText += "\"Neues Alphabet\"\r\n================\r\n";
+		outputLogText = "\"Neues Alphabet\"\r\n================\r\n";
 		outputLogText += decode(k, alphabet) + "\r\n"; 
 		outputLogText += "a b c d e f g h i j k l m n o p q r s t u v w x y z \r\n\r\n";
 		
