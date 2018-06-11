@@ -28,6 +28,7 @@ public class Main {
 				cryptoRoutines.add(new vigenereEncryptClass());
 				cryptoRoutines.add(new vigenereDecryptClass());
 				cryptoRoutines.add(new SHA1Class());
+				cryptoRoutines.add(new rsaCryptClass());
 				
         		// -----------------------------------------------------------------
         		// -----------------------------------------------------------------
