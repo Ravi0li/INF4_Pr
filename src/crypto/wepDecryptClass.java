@@ -3,7 +3,6 @@ package crypto;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Random;
 
 public class wepDecryptClass extends crypto.basicCrypt {
 

@@ -9,7 +9,7 @@ public class wepEncryptClass extends crypto.basicCrypt {
 	// Im Konstruktor das Aussehen definieren
 	public wepEncryptClass()
 	{
-		className = "WPE-Verschlüsselung";
+		className = "WEP-Verschlüsselung";
 		input1Title = "Text: ";
 		input2Title = "Schlüssel: ";
 		input3Title = "";
