@@ -1,21 +1,24 @@
 package crypto;
 
-public class basicCrypt {
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
+
+public class SHA1Class extends crypto.basicCrypt{
 	// Variablen
-	protected String className = "";
-	protected String input1Title = "";
+	protected String className = "SHA Encrypt";
+	protected String input1Title = "Geben sie ein String ein:";
 	protected String input2Title = "";
 	protected String input3Title = "";
-	protected String output1Title = "";
-	protected String output2Title = "";
+	protected String output1Title = "SHA-1 Wert:";
+	protected String output2Title = "SHA-512 Wert:";
 	
 	// Ein/Ausgabe
-	protected String input1Text = "";
-	protected String input2Text = "";
-	protected String input3Text = "";
+	protected String input1Text = "";	
 	protected String output1Text = "";
 	protected String output2Text = "";
-	protected String outputLogText = "";
+	public static String outputLogText = "";
 	
 	// Setzt die Eingaben
 	public void setInputs (String input1, String input2, String input3)
@@ -127,5 +130,52 @@ public class basicCrypt {
 	// Funktion zum Berechnen
 	public void calculate ()
 	{	
+		output1Text=encryptPassword(input1Text,1);
+		output2Text=encryptPassword(input1Text,2);
+	    outputLogText="Eingabe: "+input1Text + "\n";
+	    outputLogText+="SHA-1:(160 Bit) "+output1Text + "\n";
+	    outputLogText+="SHA-512:(512 Bit) "+output2Text + "\n";
+		
+		
+	}
+	
+	
+	private static String encryptPassword(String password,int k)
+	{
+	    String sha1 = "";
+	    String method=new String("SHA-1");
+	    try
+	    {
+	    	if(k==1)method="SHA-1";
+	    	if(k==2)method="SHA-512";
+	        MessageDigest crypt = MessageDigest.getInstance(method);
+	        crypt.reset();
+	        crypt.update(password.getBytes("UTF-8"));
+	        sha1 = byteToHex(crypt.digest());
+	    }
+	    catch(NoSuchAlgorithmException e)
+	    {
+	        e.printStackTrace();
+	    }
+	    catch(UnsupportedEncodingException e)
+	    {
+	        e.printStackTrace();
+	    }
+	  
+	
+	    
+	    return sha1;
+	}
+
+	private static String byteToHex(final byte[] hash)
+	{
+	    Formatter formatter = new Formatter();
+	    for (byte b : hash)
+	    {
+	        formatter.format("%02x", b);
+	    }
+	    String result = formatter.toString();
+	    formatter.close();
+	    return result;
 	}
 }

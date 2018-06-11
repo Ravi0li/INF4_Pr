@@ -27,6 +27,8 @@ public class Main {
 				cryptoRoutines.add(new CaesarEncryptClass());
 				cryptoRoutines.add(new vigenereEncryptClass());
 				cryptoRoutines.add(new vigenereDecryptClass());
+				cryptoRoutines.add(new SHA1Class());
+				
         		// -----------------------------------------------------------------
         		// -----------------------------------------------------------------
         	}
